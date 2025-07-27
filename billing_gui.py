@@ -1,4 +1,3 @@
-#version 3.0
 import tkinter as tk
 from tkinter import messagebox
 from datetime import datetime
@@ -80,11 +79,11 @@ class BillingApp:
         self.total_price_label = tk.Label(frame, text="Total Price: ₹0.00", font=('Arial', 16))
         self.total_price_label.grid(row=10, column=0, columnspan=2)
 
-        self.products = [] 
+        self.products = []  # To store added products
 
     def add_product(self):
         product = self.entry_product.get()
-        total_price = self.entry_total_price.get()  
+        total_price = self.entry_total_price.get()  # After tax price entered
         tax_percentage = self.entry_tax.get()
         quantity = self.entry_quantity.get()
 
@@ -93,21 +92,26 @@ class BillingApp:
             tax_percentage = float(tax_percentage) / 100
             quantity = int(quantity)
 
+            # Calculate before-tax price for each product
             before_tax_price = total_price / (1 + tax_percentage)
 
+            # Update product stock in the database or add a new product if it doesn't exist
             self.pm.add_or_update_product(product, before_tax_price, quantity, tax_percentage * 100)
 
+            # Append product details to the list of purchased items
             total_before_tax = before_tax_price * quantity
             total_after_tax = total_price * quantity
 
             self.products.append((product, before_tax_price, total_price, quantity, total_before_tax, total_after_tax))
             self.bill_text.insert(tk.END, f"{product:<20} ₹{before_tax_price:<10.2f} ₹{total_price:<10.2f} {quantity:<10} ₹{total_before_tax:<10.2f} ₹{total_after_tax:<10.2f}\n")
 
+            # Clear input fields
             self.entry_product.delete(0, tk.END)
             self.entry_total_price.delete(0, tk.END)
             self.entry_tax.delete(0, tk.END)
             self.entry_quantity.delete(0, tk.END)
 
+            # Update the total price displayed
             self.update_total()
 
         except ValueError:
